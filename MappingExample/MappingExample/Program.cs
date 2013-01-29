@@ -24,27 +24,36 @@ namespace MappingExample
             CompanyContext db = new CompanyContext();
 
             #region QUERIES AND EXPRESSIONS
-            Expression<Func<Department, bool>> filter1 =
-                d => d.DepartmentName == "Marketing";
-
-            Expression<Func<Department, bool>> filter2 =
-                d => d.Employees.Count() > 0;
-
-            var query = db.Departments
-                .Where(filter1)
-                .Where(filter2)
-                .Select(d => d.Employees);
-
-            //var query = from d in db.Departments
-            //            where d.DepartmentName == "Marketing" 
-            //            && d.Employees.Count() > 0
-            //            select d;
+            var query = from d in db.Departments
+                        where d.DepartmentName == "Marketing" && d.Employees.Count() > 0
+                        select d;
 
             var result = query.ToList();
 
             var singleQuery = db.Departments
                 .Where(d => d.DepartmentName == "Marketing")
                 .Single();
+
+            var extensionsQuery = db.Departments
+                .Where(d => d.DepartmentName == "Marketing" && d.Employees.Count() > 0)
+                .ToList();
+
+            var projectQuery = db.Departments
+                .Where(d => d.DepartmentName == "Marketing" && d.Employees.Count() > 0)
+                .SelectMany(d => d.Employees, (d,e) => new{ Name = e.Name })
+                .ToList();
+
+            Expression<Func<Department, bool>> filter1 =
+                d => d.DepartmentName == "Marketing";
+
+            Expression<Func<Department, bool>> filter2 =
+                d => d.Employees.Count() > 0;
+
+            var filterQuery = db.Departments
+                .Where(filter1)
+                .Where(filter2)
+                .Select(d => d.Employees)
+                .ToList();
 
             #endregion
 
